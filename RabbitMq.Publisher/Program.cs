@@ -17,10 +17,17 @@ channel.QueueDeclare(
 );
 
 string messaj = "first message";
-var messageBody = Encoding.UTF8.GetBytes(messaj);
 
 //default exchange
-channel.BasicPublish(string.Empty, queueName, null, messageBody);
+
+for(int i = 0; i < 50; i++)
+{
+
+	var messageBody = Encoding.UTF8.GetBytes($"{messaj} {i}");
+	channel.BasicPublish(string.Empty, queueName, null, messageBody);
+}
+
+
 Console.WriteLine("The message sent");
 Console.ReadLine();
 
