@@ -9,18 +9,13 @@ using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 channel.BasicQos(0, 1, false);
 
-string exchangeName = "logs-fanout";
-
-var queueName = "logs";
-channel.QueueDeclare(queueName,true,false,false);
-channel.QueueBind(queueName,exchangeName,"",null);
-
+string queueName = "Error";
 
 var subscriber = new EventingBasicConsumer(channel);
 
 channel.BasicConsume(queueName, false, subscriber);
 
-Console.WriteLine("listening logs ...");
+Console.WriteLine("listening erors ...");
 
 subscriber.Received += (object sender, BasicDeliverEventArgs e) =>
 {

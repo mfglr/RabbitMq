@@ -7,17 +7,30 @@ factory.Uri = new Uri("amqps://splvvplc:cIISajOBUOptA35p1cIPCfcZ6TIrwIGW@rattles
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-string exchangeName = "logs-fanout";
-channel.ExchangeDeclare(exchangeName, durable: true, type: ExchangeType.Fanout);
+string exchangeName = "logs-direct";
+channel.ExchangeDeclare(exchangeName, durable: true, type: ExchangeType.Direct);
 
-
-for(int i = 0; i < 50; i++)
+//bind queues
+foreach (var item in Enum.GetNames(typeof(LogNames)))
 {
-	var messageBody = Encoding.UTF8.GetBytes($"log {i}");
-	channel.BasicPublish(exchangeName,"",null,messageBody);
+	string routeName = $"route-{item}";
+	channel.QueueDeclare(item, true, false, false);
+	channel.QueueBind(item, exchangeName, routeName);
 }
 
+for (int i = 0; i < 50; i++)
+{
+	var routeKey = $"route-{(LogNames)(new Random().Next(1, 3))}";
+	var messageBody = Encoding.UTF8.GetBytes($"{routeKey} {i}");
+	
+	channel.BasicPublish(exchangeName,routeKey,false,null,messageBody);
+}
 
 Console.WriteLine("The message sent");
 Console.ReadLine();
 
+public enum LogNames
+{
+	Error = 1,
+	Info = 2
+}
