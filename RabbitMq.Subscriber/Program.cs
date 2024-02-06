@@ -9,16 +9,18 @@ using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 channel.BasicQos(0, 1, false);
 
-string queueName = "first_queue";
+string exchangeName = "logs-fanout";
 
-//If you are sure that the publisher created the queue, the following line can be deleted.
-channel.QueueDeclare( queueName, true, false, false );
+var queueName = "logs";
+channel.QueueDeclare(queueName,true,false,false);
+channel.QueueBind(queueName,exchangeName,"",null);
+
 
 var subscriber = new EventingBasicConsumer(channel);
 
 channel.BasicConsume(queueName, false, subscriber);
 
-
+Console.WriteLine("listening logs ...");
 
 subscriber.Received += (object sender, BasicDeliverEventArgs e) =>
 {

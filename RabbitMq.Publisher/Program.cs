@@ -7,24 +7,14 @@ factory.Uri = new Uri("amqps://splvvplc:cIISajOBUOptA35p1cIPCfcZ6TIrwIGW@rattles
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-string queueName = "first_queue";
+string exchangeName = "logs-fanout";
+channel.ExchangeDeclare(exchangeName, durable: true, type: ExchangeType.Fanout);
 
-channel.QueueDeclare(
-	queueName,
-	true,
-	false,
-	false
-);
-
-string messaj = "first message";
-
-//default exchange
 
 for(int i = 0; i < 50; i++)
 {
-
-	var messageBody = Encoding.UTF8.GetBytes($"{messaj} {i}");
-	channel.BasicPublish(string.Empty, queueName, null, messageBody);
+	var messageBody = Encoding.UTF8.GetBytes($"log {i}");
+	channel.BasicPublish(exchangeName,"",null,messageBody);
 }
 
 
