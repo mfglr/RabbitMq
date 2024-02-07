@@ -2,22 +2,17 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
-var factory = new ConnectionFactory();
-factory.Uri = new Uri("amqps://splvvplc:cIISajOBUOptA35p1cIPCfcZ6TIrwIGW@rattlesnake.rmq.cloudamqp.com/splvvplc");
-
+var factory = new ConnectionFactory() { HostName = "localhost" };
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 channel.BasicQos(0, 1, false);
 
-var exchangeName = "logs-topic";
-var randomQueueName = channel.QueueDeclare().QueueName;
-string routeKey = "*.Info";
-
-channel.QueueBind(randomQueueName, exchangeName, routeKey);
+string queueName = "deneme";
+string routeKey = "deneme";
 
 var subscriber = new EventingBasicConsumer(channel);
 
-channel.BasicConsume(randomQueueName, false, subscriber);
+channel.BasicConsume(queueName, false, subscriber);
 
 Console.WriteLine("listening erors ...");
 
