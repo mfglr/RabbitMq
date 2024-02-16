@@ -5,13 +5,17 @@ var factory = new ConnectionFactory() { HostName = "localhost" };
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-channel.QueueDeclare("deneme", false, false, false,null);
-	
-string routeKey = $"deneme";
-var messageBody = Encoding.UTF8.GetBytes($"message");
+var exchangeName = "exchange";
 
-channel.BasicPublish(string.Empty,routeKey,false,null,messageBody);
+channel.ExchangeDeclare(exchangeName, ExchangeType.Fanout, true, false, null);
 
-Console.WriteLine("The logs sent");
+for(int i = 0; i < 100; i++)
+{
+    var messageBody = Encoding.UTF8.GetBytes($"message-{i}");
+    channel.BasicPublish(exchangeName, string.Empty, false, null, messageBody);
+    Thread.Sleep(1000);
+}
+
+Console.WriteLine("The messages sent");
 Console.ReadLine();
 
